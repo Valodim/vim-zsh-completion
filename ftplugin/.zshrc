@@ -18,7 +18,7 @@ compprefuncs=( null-line )
 comppostfuncs=( null-line exit )
 
 # never group stuff!
-zstyle \* list-grouped false
+zstyle ':completion:*' list-grouped false
 
 # we use zparseopts
 zmodload zsh/zutil
@@ -49,18 +49,39 @@ compadd () {
     # JESUS CHRIST IT TOOK ME FOREVER TO FIGURE OUT THIS OPTION WAS SET AND MESSED WITH MY SHIT HERE
     setopt localoptions norcexpandparam extendedglob
 
+    # append / to directories?
+    integer dirsuf=0
+    if [[ -z $hsuf && "$@" == *-[[:alnum:]]#f* ]]; then
+        dirsuf=1
+    fi
+
+    [[ -n $hits ]] || return
+
+    # TODO descriptions don't align with the array we get from -A, so we can't
+    # align those easily.
+
     # do we have descriptions?
     if (( $@[(I)-d] )); then # kind of a hack, $+@[(r)-d] doesn't work because of line noise overload
         tmp=${@[$[${@[(i)-d]}+1]]}
         if (( ${(P)#tmp} == $#hits)); then
             for i in {1..$#hits}; do
-                echo -E - $IPREFIX$apre$hpre$hits[$i]$hsuf$asuf -- ${${(P)tmp}[$i]#$hits[$i] #-- }
+                if (( dirsuf )) && [[ -d $hits[$i] ]]; then
+                    echo -E - $IPREFIX$apre$hpre$hits[$i]/$hsuf$asuf -- ${${(P)tmp}[$i]#$hits[$i] #-- }
+                else
+                    echo -E - $IPREFIX$apre$hpre$hits[$i]$hsuf$asuf -- ${${(P)tmp}[$i]#$hits[$i] #-- }
+                fi
             done
             return
         fi
     fi
 
     # otherwise, just print all candidates
-    (( $#hits )) && print -l -- $IPREFIX$apre$hpre${^hits}$hsuf$asuf
+    for i in {1..$#hits}; do
+        if (( dirsuf )) && [[ -d $hits[$i] ]]; then
+            echo -E - $IPREFIX$apre$hpre$hits[$i]/$hsuf$asuf
+        else
+            echo -E - $IPREFIX$apre$hpre$hits[$i]$hsuf$asuf
+        fi
+    done
 
 }
