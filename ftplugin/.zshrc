@@ -51,7 +51,8 @@ compadd () {
 
     # append / to directories?
     integer dirsuf=0
-    if [[ -z $hsuf && "$@" == *-[[:alnum:]]#f* ]]; then
+    # don't be fooled by -default- >.>
+    if [[ -z $hsuf && "${${@//-default-/}% -# *}" == *-[[:alnum:]]#f* ]]; then
         dirsuf=1
     fi
 
