@@ -16,7 +16,8 @@ fun! zsh_completion#Complete(findstart, base)
         " For some weird reason, if the base for completion is just '-', which
         " is the case fairly often in shell completion, the a:base argument we
         " get below is just '0'. I don't know why, it just does. So I'm saving
-        " it here myself as a workaround.
+        " it here myself as a workaround. If anyone knows how to fix this or
+        " what I'm doing wrong, I'd be happy to hear it.
         let s:base = l:line[l:pos :]
 
         return l:pos
