@@ -79,26 +79,17 @@ compadd () {
     # just drop
     [[ -n $__hits ]] || return
 
-    # do we have descriptions, and a matching number?
-    if (( $#__dscr == $#__hits )); then
-        # display them together
-        for i in {1..$#__hits}; do
-            if (( dirsuf )) && [[ -d $__hits[$i] ]]; then
-                echo -E - $IPREFIX$apre$hpre$__hits[$i]/$hsuf$asuf -- ${${__dscr[$i]}##$__hits[$i] #}
-            else
-                echo -E - $IPREFIX$apre$hpre$__hits[$i]$hsuf$asuf -- ${${__dscr[$i]}##$__hits[$i] #}
-            fi
-        done
-        return
-    fi
-
-    # otherwise, just print all candidates
+    # display all matches
+    local dsuf dscr
     for i in {1..$#__hits}; do
-        if (( dirsuf )) && [[ -d $__hits[$i] ]]; then
-            echo -E - $IPREFIX$apre$hpre$__hits[$i]/$hsuf$asuf
-        else
-            echo -E - $IPREFIX$apre$hpre$__hits[$i]$hsuf$asuf
-        fi
+
+        # add a dir suffix?
+        (( dirsuf )) && [[ -d $__hits[$i] ]] && dsuf=/ || dsuf=
+        # description to be displayed afterwards
+        (( $#__dscr >= $i )) && dscr=" -- ${${__dscr[$i]}##$__hits[$i] #}" || dscr=
+
+        echo -E - $IPREFIX$apre$hpre$__hits[$i]$dsuf$hsuf$asuf$dscr
+
     done
 
 }
