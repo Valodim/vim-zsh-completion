@@ -19,6 +19,8 @@ comppostfuncs=( null-line exit )
 
 # never group stuff!
 zstyle ':completion:*' list-grouped false
+# don't insert tab when attempting completion on empty line
+zstyle ':completion:*' insert-tab false
 # no list separator, this saves some stripping later on
 zstyle ':completion:*' list-separator ''
 
