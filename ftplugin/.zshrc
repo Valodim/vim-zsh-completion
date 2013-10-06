@@ -26,7 +26,7 @@ zmodload zsh/zutil
 # override compadd (this our hook)
 compadd () {
 
-    typeset -a tmp hits; 
+    typeset -a __tmp
 
     # check if any of -O, -A or -D are given
     if [[ ${@[1,(i)(-|--)]} == *-(O|A|D)\ * ]]; then
@@ -38,16 +38,21 @@ compadd () {
     # ok, this concerns us!
     # echo -E - got this: "$@"
 
+    # be careful with namespacing here, we don't want to mess with stuff that
+    # should be passed to compadd!
+    typeset -a __hits __dscr;
+
+    # capture completions by injecting -A parameter into the compadd call.
+    # this takes care of matching for us.
+    builtin compadd -A __hits "$@"
+
+    # JESUS CHRIST IT TOOK ME FOREVER TO FIGURE OUT THIS OPTION WAS SET AND MESSED WITH MY SHIT HERE
+    setopt localoptions norcexpandparam extendedglob
+
     # extract suffix from compadd call. we can't do zsh's cool -r remove-func
     # magic, but it's better than nothing.
     typeset -A apre hpre hsuf asuf
     zparseopts -E P:=apre p:=hpre S:=asuf s:=hsuf
-
-    # capture completions by injecting -A parameter into the compadd call
-    builtin compadd -A hits "$@"
-
-    # JESUS CHRIST IT TOOK ME FOREVER TO FIGURE OUT THIS OPTION WAS SET AND MESSED WITH MY SHIT HERE
-    setopt localoptions norcexpandparam extendedglob
 
     # append / to directories?
     integer dirsuf=0
@@ -56,20 +61,20 @@ compadd () {
         dirsuf=1
     fi
 
-    [[ -n $hits ]] || return
+    [[ -n $__hits ]] || return
 
     # TODO descriptions don't align with the array we get from -A, so we can't
     # align those easily.
 
     # do we have descriptions?
     if (( $@[(I)-d] )); then # kind of a hack, $+@[(r)-d] doesn't work because of line noise overload
-        tmp=${@[$[${@[(i)-d]}+1]]}
-        if (( ${(P)#tmp} == $#hits)); then
-            for i in {1..$#hits}; do
-                if (( dirsuf )) && [[ -d $hits[$i] ]]; then
-                    echo -E - $IPREFIX$apre$hpre$hits[$i]/$hsuf$asuf -- ${${(P)tmp}[$i]#$hits[$i] #-- }
+        __tmp=${@[$[${@[(i)-d]}+1]]}
+        if (( ${(P)#__tmp} == $#__hits)); then
+            for i in {1..$#__hits}; do
+                if (( dirsuf )) && [[ -d $__hits[$i] ]]; then
+                    echo -E - $IPREFIX$apre$hpre$__hits[$i]/$hsuf$asuf -- ${${(P)__tmp}[$i]#$__hits[$i] #-- }
                 else
-                    echo -E - $IPREFIX$apre$hpre$hits[$i]$hsuf$asuf -- ${${(P)tmp}[$i]#$hits[$i] #-- }
+                    echo -E - $IPREFIX$apre$hpre$__hits[$i]$hsuf$asuf -- ${${(P)__tmp}[$i]#$__hits[$i] #-- }
                 fi
             done
             return
@@ -77,11 +82,11 @@ compadd () {
     fi
 
     # otherwise, just print all candidates
-    for i in {1..$#hits}; do
-        if (( dirsuf )) && [[ -d $hits[$i] ]]; then
-            echo -E - $IPREFIX$apre$hpre$hits[$i]/$hsuf$asuf
+    for i in {1..$#__hits}; do
+        if (( dirsuf )) && [[ -d $__hits[$i] ]]; then
+            echo -E - $IPREFIX$apre$hpre$__hits[$i]/$hsuf$asuf
         else
-            echo -E - $IPREFIX$apre$hpre$hits[$i]$hsuf$asuf
+            echo -E - $IPREFIX$apre$hpre$__hits[$i]$hsuf$asuf
         fi
     done
 
