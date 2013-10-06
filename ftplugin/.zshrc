@@ -19,6 +19,8 @@ comppostfuncs=( null-line exit )
 
 # never group stuff!
 zstyle ':completion:*' list-grouped false
+# no list separator, this saves some stripping later on
+zstyle ':completion:*' list-separator ''
 
 # we use zparseopts
 zmodload zsh/zutil
@@ -82,9 +84,9 @@ compadd () {
         # display them together
         for i in {1..$#__hits}; do
             if (( dirsuf )) && [[ -d $__hits[$i] ]]; then
-                echo -E - $IPREFIX$apre$hpre$__hits[$i]/$hsuf$asuf -- ${${__dscr[$i]}#$__hits[$i] #-- }
+                echo -E - $IPREFIX$apre$hpre$__hits[$i]/$hsuf$asuf -- ${${__dscr[$i]}##$__hits[$i] #}
             else
-                echo -E - $IPREFIX$apre$hpre$__hits[$i]$hsuf$asuf -- ${${__dscr[$i]}#$__hits[$i] #-- }
+                echo -E - $IPREFIX$apre$hpre$__hits[$i]$hsuf$asuf -- ${${__dscr[$i]}##$__hits[$i] #}
             fi
         done
         return
