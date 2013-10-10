@@ -15,12 +15,6 @@ The script works reasonably well for most cases I tested.
 
 While it does work reasonably well, the way completion results are gathered
 from zsh is a HUGE HACK, so don't be too surprised with inexplicable behavior.
-Also note the completion capturing script requires (at the time of this
-writing) a nightly version of zsh which includes the patch from here:
-
-http://www.zsh.org/mla/workers/2013/msg00728.html
-https://github.com/zsh-users/zsh/commit/b0a0441902f848da4284e107c29e43e222252959
-
 
 ## Installation
 

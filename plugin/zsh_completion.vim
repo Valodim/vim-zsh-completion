@@ -23,7 +23,7 @@ fun! zsh_completion#Complete(findstart, base)
         return l:pos
     else
 
-        let l:srcfile = globpath(&rtp, 'ftplugin/capture.zsh')
+        let l:srcfile = globpath(&rtp, 'plugin/capture.zsh')
         if len(l:srcfile) == 0
             return -1
         endif
