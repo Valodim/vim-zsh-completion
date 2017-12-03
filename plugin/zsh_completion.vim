@@ -1,26 +1,19 @@
 " zsh_completion.vim - Omni Completion for zsh
 " Maintainer: Valodim Skywalker <valodim@mugenguild.com>
 " Last Updated: 03 Oct 2013
+" 
+let s:pos = 0
+let s:str = ''
+let s:base = ''
 
 fun! zsh_completion#Complete(findstart, base)
 
     if a:findstart
-        " locate the start of the word
-        let l:line = getline('.')
-        let l:pos = col('.') - 1
-        while l:pos > 0 && l:line[l:pos - 1] =~ '\S'
-            let l:pos -= 1
-        endwhile
-
-        " SAVE THE BASE OURSELVES
-        " For some weird reason, if the base for completion is just '-', which
-        " is the case fairly often in shell completion, the a:base argument we
-        " get below is just '0'. I don't know why, it just does. So I'm saving
-        " it here myself as a workaround. If anyone knows how to fix this or
-        " what I'm doing wrong, I'd be happy to hear it.
-        let s:base = l:line[l:pos :]
-
-        return l:pos
+        let str = getline('.')[:col('.') - 2]
+        let s:str = substitute(str, '[^ ]*$', '' , 'g')
+        let s:pos = len(s:str)
+        let s:base = str[s:pos :]
+        return s:pos
     else
 
         let l:srcfile = globpath(&rtp, 'plugin/capture.zsh')
@@ -28,7 +21,7 @@ fun! zsh_completion#Complete(findstart, base)
             return -1
         endif
 
-        let s:out = system(l:srcfile . ' ' . shellescape(getline(".") . s:base) . ' ' . (col('.')+strlen(s:base)-1))
+        let s:out = system(l:srcfile . ' ' . shellescape(s:str . s:base) . ' ' . (col('.')+strlen(s:base)-1))
         let l:result = []
         for item in split(s:out, '\r\n')
             let l:pieces = split(item, ' -- ')
