@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 zmodload zsh/zpty || { echo 'error: missing module zsh/zpty' >&2; exit 1 }
 
