@@ -9,8 +9,8 @@ zpty z zsh -i
 local line
 
 # swallow input of zshrc, disable hooks and disable PROMPT
-# the prompt is disabled later as well but at least with powerlevel10k
-# it needs to be disabled twice.
+# the prompt should be disabled here (before init) in case a prompt theme has
+# a verbose prompt
 zpty -w z "autoload add-zsh-hook"
 zpty -w z "add-zsh-hook -D precmd '*'"
 zpty -w z "add-zsh-hook -D preexec '*'"
@@ -31,9 +31,6 @@ setopt rcquotes
     echo 'error initializing.' >&2
     exit 2
 } =( <<< '
-# no prompt!
-PROMPT=
-
 # load completion system
 autoload compinit
 compinit -d ~/.zcompdump_capture
