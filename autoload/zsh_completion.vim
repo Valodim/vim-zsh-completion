@@ -2,13 +2,16 @@
 " Maintainer: Valodim Skywalker <valodim@mugenguild.com>
 " Last Updated: 03 Oct 2013
 
-fun! zsh_completion#Complete(findstart, base)
+let s:srcfile = globpath(&runtimepath, 'autoload/capture.zsh')
+let s:hasSrcfile = len(s:srcfile)
+
+fun! zsh_completion#Complete(findstart, base) abort
 
     if a:findstart
         " locate the start of the word
         let l:line = getline('.')
         let l:pos = col('.') - 1
-        while l:pos > 0 && l:line[l:pos - 1] =~ '\S'
+        while l:pos > 0 && l:line[l:pos - 1] =~? '\S'
             let l:pos -= 1
         endwhile
 
@@ -23,12 +26,11 @@ fun! zsh_completion#Complete(findstart, base)
         return l:pos
     else
 
-        let l:srcfile = globpath(&rtp, 'plugin/capture.zsh')
-        if len(l:srcfile) == 0
+        if s:hasSrcfile == 0
             return -1
         endif
 
-        let s:out = system(l:srcfile . ' ' . shellescape(getline(".") . s:base) . ' ' . (col('.')+strlen(s:base)-1))
+        let s:out = system(s:srcfile . ' ' . shellescape(getline('.') . s:base) . ' ' . (col('.')+strlen(s:base)-1))
         let l:result = []
         for item in split(s:out, '\r\n')
             let l:pieces = split(item, ' -- ')
